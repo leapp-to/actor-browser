@@ -1,0 +1,2399 @@
+var snactor_data = {
+   "actors": [
+      {
+         "outputs": [
+            {
+               "type": "HostnameInfo", 
+               "name": "hostnameinfo"
+            }
+         ], 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "description": "Get hostname info from a system\nInputs:\n  None\nOutputs:\n  hostnameinfo - hostname\n", 
+         "name": "hostname_info", 
+         "executor": {
+            "type": "python", 
+            "script-file": "hostname_info.py"
+         }
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "IPList", 
+               "name": "ip_list"
+            }
+         ], 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "description": "Get the system IP addresses\n\nInputs:\n  None\nOutputs:\n  ip_list - List of IPs\n", 
+         "name": "iplist", 
+         "executor": {
+            "output-processor": {
+               "type": "string-list", 
+               "target": "@ip_list.ips@"
+            }, 
+            "type": "bash", 
+            "script-file": "iplist.sh"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "filter"
+            }, 
+            {
+               "type": "RPMPackages", 
+               "name": "rpm_packages"
+            }
+         ], 
+         "name": "filter_packages", 
+         "tags": [
+            "packages"
+         ], 
+         "outputs": [
+            {
+               "type": "RPMPackages", 
+               "name": "filtered_packages"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "arguments": [
+               "@filter.value@"
+            ], 
+            "script-file": "filter_packages.py"
+         }, 
+         "description": "Filter RPM packages by name\n\nInputs:\n  filter            - specific name of package(s) that user wants to filter out\n  rpm_packages      - all RPM packages\nOutputs:\n  filtered_packages - filtered package(s) by given name\n"
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }
+         ], 
+         "description": "Delete a container directory\n\nInputs:\n  container_directory - path to a container directory\nOutputs:\n  None (container directory deleted)\n", 
+         "name": "delete_container_data", 
+         "executor": {
+            "type": "bash", 
+            "arguments": [
+               "@container_directory.value@"
+            ], 
+            "script-file": "delete_container_data.sh"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "AnsibleSetupModuleFacts", 
+               "name": "source_ansible_setup"
+            }
+         ], 
+         "name": "source_ansible_setup_converter", 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "outputs": [
+            {
+               "type": "HostnameInfo", 
+               "name": "hostnameinfo"
+            }, 
+            {
+               "type": "IPList", 
+               "name": "ip_list"
+            }, 
+            {
+               "type": "OSVersion", 
+               "name": "osversion"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "source_ansible_setup_converter.py"
+         }, 
+         "description": "Process Ansible Facts (system information) for further usage\n\nInputs:\n  source_ansible_setup - Ansible Facts\nOutputs:\n  hostnameinfo         - hostname\n  ip_list              - list of IP addresses\n  osversion            - information about Operating System\n"
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "Message", 
+               "name": "message"
+            }, 
+            {
+               "type": "Message", 
+               "name": "message2"
+            }
+         ], 
+         "description": "This is a simple actor example\n", 
+         "name": "simple-actor", 
+         "executor": {
+            "executable": "/bin/bash", 
+            "type": "default", 
+            "arguments": [
+               "-c", 
+               "echo {\\\"message\\\": {\\\"value\\\": \\\"All your actor are belong to us!\\\"}, \\\"message2\\\": {\\\"value\\\": \\\"what ever\\\"}}"
+            ]
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }
+         ], 
+         "description": "Move etc/hosts and link it to etc/hosts.source, so it can be used in Docker\n\nInputs:\n  container_directory - name of the container directory\nOutputs:\n  None\n", 
+         "name": "postconfig", 
+         "executor": {
+            "type": "bash", 
+            "arguments": [
+               "@container_directory.value@"
+            ], 
+            "script-file": "postconfig.sh"
+         }
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "ContainersList", 
+               "name": "containerslist"
+            }
+         ], 
+         "tags": [
+            "check_target", 
+            "depsolver"
+         ], 
+         "description": "Returns list of containers on a system\n\nInputs:\n  None\nOutputs:\n  contianerslist - list of containers\n", 
+         "name": "containers_list", 
+         "executor": {
+            "type": "python", 
+            "script-file": "containers_list.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "ContainerName", 
+               "name": "container_name"
+            }
+         ], 
+         "description": "Delete container with a given name\n\nInputs:\n  container_name - name of the container to be deleted\nOutputs:\n  None (container deleted)\n", 
+         "name": "delete_container", 
+         "executor": {
+            "type": "bash", 
+            "arguments": [
+               "@container_name.value@"
+            ], 
+            "script-file": "delete_container.sh"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "host"
+            }, 
+            {
+               "type": "TypePortScanOptions", 
+               "name": "scan_options"
+            }
+         ], 
+         "name": "portscan", 
+         "description": "Scan ports on a system\n\nInputs:\n  host             - hostname or IP\n  scan_options     - shallow_scan - 'nmap -sS' if option is set to `true`,\n                                    otherwise 'nmap -sV' (default: false)\n                     force_nmap   - on the localhost, force using 'nmap' (if true),\n                                    otherwise use 'netstat' (default: false)\n                     port_range   - specify port range to scan\nOutputs:\n  port_scan_result - ports on a system\n", 
+         "outputs": [
+            {
+               "type": "TypePortScan", 
+               "name": "port_scan_result"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "portscan.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "TypePortScan", 
+               "name": "source_system_ports"
+            }, 
+            {
+               "type": "TypePortScan", 
+               "name": "target_system_ports"
+            }, 
+            {
+               "type": "ExposedPorts", 
+               "name": "tcp_ports_user_mapping"
+            }, 
+            {
+               "type": "TypePortScan", 
+               "name": "excluded_tcp_ports"
+            }, 
+            {
+               "type": "BaseTypeBool", 
+               "name": "use_default_port_map"
+            }
+         ], 
+         "name": "portmap", 
+         "description": "Map source system ports to the target system ports according to user ports mapping (user can exclude some port(s)) or using default mapping port(s) (SSH 22/tcp -> 9022/tcp for now only)\n\nInputs:\n  source_system_ports     - the ports on source machine\n  target_system_ports     - the ports on target machine\n  tcp_ports_user_mapping  - user ports mapping\n  excluded_tcp_ports      - excluded ports mapping\nOutputs:\n  exposed_ports           - final ports mapping\n", 
+         "outputs": [
+            {
+               "type": "ExposedPorts", 
+               "name": "exposed_ports"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "portmap.py"
+         }
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "RPMPackages", 
+               "name": "rpm_packages"
+            }
+         ], 
+         "tags": [
+            "packages", 
+            "inspect_machine"
+         ], 
+         "description": "List RPM packages\n\nInputs:\n  None\nOutputs:\n  rpm_packages - list of the packages\n", 
+         "name": "rpm_list", 
+         "executor": {
+            "type": "python", 
+            "script-file": "rpm_list.py"
+         }
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "DockerInfo", 
+               "name": "dockerinfo"
+            }
+         ], 
+         "tags": [
+            "check_target", 
+            "depsolver"
+         ], 
+         "description": "Collect information about Docker on the system\n\nInputs:\n  None\nOutputs:\n  dockerinfo - collected Docker information (like Docker bin path, its systemd state and general available Docker information)\n", 
+         "name": "docker_info", 
+         "executor": {
+            "type": "python", 
+            "script-file": "docker-info.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }
+         ], 
+         "extends": {
+            "inputs": [
+               {
+                  "source": "@container_directory@", 
+                  "name": "container_directory"
+               }, 
+               {
+                  "name": "upstart_service_blacklist", 
+                  "value": {
+                     "value": [
+                        "cloud-config", 
+                        "cloud-final", 
+                        "cloud-init", 
+                        "cloud-init-local", 
+                        "ip6tables", 
+                        "iptables", 
+                        "lvm2-monitor", 
+                        "network"
+                     ]
+                  }
+               }
+            ], 
+            "name": "post_configure_upstart"
+         }, 
+         "description": "Blacklist some of upstart services in container directory by default\n(list of them - below in \"extends\" part as \"value\")\n\nInputs:\n  container_directory - name of the container directory\nOutputs:\n  None\n", 
+         "name": "post_configure_upstart_default"
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_name"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_user_name"
+            }
+         ], 
+         "description": "Group actor to remote destroy of a container\n\nInputs:\n  container_name   - name of a container that will be destroyed\n  target_host      - hostname of the remote system\n  target_user_name - username for the remote system\nOutputs:\n  None\n", 
+         "name": "destroy-container", 
+         "executor": {
+            "actors": [
+               "set_container_directory", 
+               "remote-destroy-container"
+            ], 
+            "type": "group"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "ExposedPorts", 
+               "name": "exposed_ports"
+            }
+         ], 
+         "description": "Print port mapping to an output\n\nInputs:\n  exposed_ports - list of exposed ports\nOutputs:\n  Print the port mapping to $LEAPP_ACTOR_OUTPUT\n", 
+         "name": "port-mapping-output", 
+         "executor": {
+            "type": "bash", 
+            "script-file": "port-mapping-output.sh"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "TypeStringList", 
+               "name": "excluded_paths"
+            }
+         ], 
+         "extends": {
+            "inputs": [
+               {
+                  "source": "@excluded_paths@", 
+                  "name": "string_list"
+               }
+            ], 
+            "name": "array_to_csv", 
+            "outputs": [
+               {
+                  "source": "@csv_string@", 
+                  "name": "csv_excluded_paths"
+               }
+            ]
+         }, 
+         "description": "Defines excluded paths for array_to_csv\n\nInputs:\n  excluded_paths     - paths to be excluded\nOutputs:\n  csv_excluded_paths - final csv with excluded paths\n", 
+         "name": "excluded_paths_to_csv", 
+         "outputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "csv_excluded_paths"
+            }
+         ]
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "RSyncInfo", 
+               "name": "rsyncinfo"
+            }
+         ], 
+         "tags": [
+            "check_target", 
+            "depsolver"
+         ], 
+         "description": "Collect information about Rsync on a system\n\nInputs:\n  None\nOutputs:\n  rsyncinfo - collected information about Rsync\n", 
+         "name": "rsync_info", 
+         "executor": {
+            "type": "python", 
+            "script-file": "rsync-info.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "TypeStringList", 
+               "name": "string_list"
+            }
+         ], 
+         "name": "array_to_csv", 
+         "description": "Convert array of strings to the CSV\n\nInputs:\n  string_list - Array of strings\nOutputs:\n  csv_string  - CSV record\n", 
+         "outputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "csv_string"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "array_to_csv.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "TypePortScan", 
+               "name": "port_scan_result"
+            }
+         ], 
+         "description": "Print port scan output\n\nInputs:\n  port_scan_result - scanned port list\nOutputs:\n  Print the port scan result to $LEAPP_ACTOR_OUTPUT\n", 
+         "name": "port-inspect-output", 
+         "executor": {
+            "type": "bash", 
+            "script-file": "port-inspect-output.sh"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeBool", 
+               "name": "check_target_service_status"
+            }
+         ], 
+         "name": "check_target_group", 
+         "tags": [
+            "check_target"
+         ], 
+         "outputs": [
+            {
+               "type": "RSyncInfo", 
+               "name": "rsyncinfo"
+            }, 
+            {
+               "type": "DockerInfo", 
+               "name": "dockerinfo"
+            }, 
+            {
+               "type": "ContainersList", 
+               "name": "containerslist"
+            }
+         ], 
+         "executor": {
+            "actors": [
+               "docker_info", 
+               "rsync_info", 
+               "containers_list", 
+               "check-target-output"
+            ], 
+            "type": "group"
+         }, 
+         "description": "Group actor that collect the information about services (Docker, Rsync and container list) on a target system\nand send the result information to the output (socket).\n\nInputs:\n  check_target_service_status - status of the services on target system\nOutputs:\n  rsyncinfo                   - Rsync information\n  dockerinfo                  - Docker information\n  containerslist              - List of the containers\n"
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "source_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_user_name"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "source_user_name"
+            }, 
+            {
+               "type": "BaseTypeBool", 
+               "name": "start_container"
+            }, 
+            {
+               "type": "BaseTypeBool", 
+               "name": "force_create"
+            }, 
+            {
+               "type": "OptionalContainerName", 
+               "name": "user_container_name"
+            }, 
+            {
+               "type": "TypeStringList", 
+               "name": "excluded_paths"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "tcp_port_list"
+            }, 
+            {
+               "type": "ExposedPorts", 
+               "name": "tcp_ports_user_mapping"
+            }, 
+            {
+               "type": "TypePortScan", 
+               "name": "excluded_tcp_ports"
+            }, 
+            {
+               "type": "BaseTypeBool", 
+               "name": "use_default_port_map"
+            }
+         ], 
+         "description": "Main group actor that provides whole workflow to migrate source system to a macrocontainer\n\nInputs:\n  source_host            - source system hostname\n  source_user_name       - username for source system\n  target_host            - target system hostname\n  target_user_name       - username on target system\n  tcp_port_list          - list of TCP ports\n  tcp_ports_user_mapping - user ports mapping\n  excluded_tcp_ports     - excluded ports mapping\n  excluded_paths         - excluded file paths\n  user_container_name    - container name defined by user\n  force_create           - option to create container when the container exists\n                           with given name - remove the old one and create the new one\n  start_container        - option to explicit start the container\nOutputs:\n  None\n", 
+         "name": "migrate-machine", 
+         "executor": {
+            "actors": [
+               "source_ansible_setup", 
+               "source_ansible_setup_converter", 
+               "create_container_name", 
+               "remote-target-check", 
+               "verify-target-container", 
+               "source_portscan", 
+               "target_portscan", 
+               "portmap", 
+               "set_container_directory", 
+               "create_container_dir", 
+               "excluded_paths_to_csv", 
+               "rsync", 
+               "post_configure_upstart_default", 
+               "create_container", 
+               "start_container"
+            ], 
+            "type": "group"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "source_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "source_user_name"
+            }
+         ], 
+         "name": "source_ansible_setup", 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "outputs": [
+            {
+               "type": "AnsibleSetupModuleFacts", 
+               "name": "source_ansible_setup"
+            }
+         ], 
+         "executor": {
+            "output": "source_ansible_setup", 
+            "host": "@source_host.value@", 
+            "type": "ansible-module", 
+            "user": "@source_user_name.value@", 
+            "module": {
+               "arguments": [
+                  "gather_subset=!hardware,!virtual,!ohai,!facter"
+               ], 
+               "name": "setup"
+            }
+         }, 
+         "description": "Gather a source system information by using Ansible\n\nInputs:\n  source_host          - hostname of a source system\n  source_user_name     - username for a source system\nOutputs:\n  source_ansible_setup - gathered Ansible Facts (source system information)\n"
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }
+         ], 
+         "description": "Create container directory\n\nInputs:\n  container_directory - name of the container directory\nOutputs:\n  None or exception (in case of error when creating directory)\n", 
+         "name": "create_container_dir", 
+         "executor": {
+            "type": "python", 
+            "script-file": "create_container_dir.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "OSVersion", 
+               "name": "osversion"
+            }, 
+            {
+               "type": "HostnameInfo", 
+               "name": "hostnameinfo"
+            }, 
+            {
+               "type": "IPList", 
+               "name": "ip_list"
+            }, 
+            {
+               "type": "RPMPackages", 
+               "name": "rpm_packages"
+            }
+         ], 
+         "name": "inspect_machine", 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "outputs": [
+            {
+               "type": "MachineInfo", 
+               "name": "machineinfo"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "inspect_machine.py"
+         }, 
+         "description": "Process information about a system (like OS version, hostname, IP list and RPM packages)\nto one JSON file\n\nInputs:\n  osversion    - version of Operation System\n  hostnameinfo - hostname of a system\n  ip_list      - IP list\n  rpm_packages - RPM packages on a system\nOutputs:\n  machineinfo  - all inputs together\n"
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }
+         ], 
+         "extends": {
+            "inputs": [
+               {
+                  "source": "@target_host@", 
+                  "name": "host"
+               }, 
+               {
+                  "name": "scan_options", 
+                  "value": {
+                     "shallow_scan": true
+                  }
+               }
+            ], 
+            "name": "portscan", 
+            "outputs": [
+               {
+                  "source": "@port_scan_result@", 
+                  "name": "target_system_ports"
+               }
+            ]
+         }, 
+         "description": "Scan the ports on a target system\n\nInputs:\n  target_host - hostname of a target system\nOutputs:\n  target_system_ports - list of found ports on a target system\n", 
+         "name": "target_portscan", 
+         "outputs": [
+            {
+               "type": "TypePortScan", 
+               "name": "target_system_ports"
+            }
+         ]
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_user_name"
+            }
+         ], 
+         "name": "remote-target-check", 
+         "description": "Collect information about Docker, Rsync and containers list on a target system\n\nInputs:\n  target_host      - target system hostname\n  target_user_name - username on target system\nOutputs:\n  containerslist   - list of containers on target system\n  rsyncinfo        - collected Rsync information\n  dockerinfo       - collected Docker information\n", 
+         "outputs": [
+            {
+               "type": "ContainersList", 
+               "name": "containerslist"
+            }, 
+            {
+               "type": "RSyncInfo", 
+               "name": "rsyncinfo"
+            }, 
+            {
+               "type": "DockerInfo", 
+               "name": "dockerinfo"
+            }
+         ], 
+         "executor": {
+            "host": "@target_host.value@", 
+            "type": "ansible-script-module", 
+            "user": "@target_user_name.value@", 
+            "script-file": "./scripts/remote-target-check.py"
+         }
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "OSVersion", 
+               "name": "osversion"
+            }, 
+            {
+               "type": "HostnameInfo", 
+               "name": "hostnameinfo"
+            }, 
+            {
+               "type": "IPList", 
+               "name": "ip_list"
+            }
+         ], 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "description": "Gather source system information like OS version, hostname and IP addresses\n\nInputs:\n  None\nOutputs:\n  osversion        - information about Operating System\n  hostnameinfo     - hostname\n  ip_list          - list of IP addresses\n", 
+         "name": "inspect_machine_group", 
+         "executor": {
+            "actors": [
+               "osversion", 
+               "hostname_info", 
+               "iplist"
+            ], 
+            "type": "group"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "RPMPackages", 
+               "name": "rpm_packages"
+            }
+         ], 
+         "description": "Filter kernel specific RPM packages\n\nInputs:\n  rpm_packages    - all RPM packages\nOutputs:\n  kernel_packages - filtred kernel RPM packages\n", 
+         "tags": [
+            "packages"
+         ], 
+         "outputs": [
+            {
+               "type": "RPMPackages", 
+               "name": "kernel_packages"
+            }
+         ], 
+         "extends": {
+            "inputs": [
+               {
+                  "name": "filter", 
+                  "value": {
+                     "value": "kernel"
+                  }
+               }, 
+               {
+                  "source": "@rpm_packages@", 
+                  "name": "rpm_packages"
+               }
+            ], 
+            "name": "filter_packages", 
+            "outputs": [
+               {
+                  "source": "@filtered_packages@", 
+                  "name": "kernel_packages"
+               }
+            ]
+         }, 
+         "name": "filter_kernel_packages"
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "OSVersion", 
+               "name": "osversion"
+            }
+         ], 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "description": "Get the Operating System name and version number\n\nInputs:\n  None\nOutputs:\n  osversion - Operating System information (name and version number)\n", 
+         "name": "osversion", 
+         "executor": {
+            "type": "python", 
+            "script-file": "osversion.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "host"
+            }, 
+            {
+               "type": "TypePortScanOptions", 
+               "name": "scan_options"
+            }
+         ], 
+         "description": "Group actor that scans ports on a target system a print the results out\n\nInputs:\n  host         - hostname of a target system\n  scan_options - options for scanning (for more info check `description` in portscan/_actor.yaml)\nOutputs:\n  Print the port scan result to $LEAPP_ACTOR_OUTPUT\n", 
+         "name": "port-inspect", 
+         "executor": {
+            "actors": [
+               "portscan", 
+               "port-inspect-output"
+            ], 
+            "type": "group"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeBool", 
+               "name": "check_target_service_status"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_user_name"
+            }
+         ], 
+         "name": "remote-target-check-group", 
+         "description": "Group actor that checks services (like Docker, Rsync) on a target system\nand send the result information about the services to a socket\n\nInputs:\n  check_target_service_status - status of services\n  target_host                 - target system hostname\n  target_user_name            - username on target system\nOutputs:\n  rsyncinfo                   - collected information about Rsync\n  dockerinfo                  - collected information about Docker\n  containerslist              - list of the container on a target system\n", 
+         "outputs": [
+            {
+               "type": "RSyncInfo", 
+               "name": "rsyncinfo"
+            }, 
+            {
+               "type": "DockerInfo", 
+               "name": "dockerinfo"
+            }, 
+            {
+               "type": "ContainersList", 
+               "name": "containerslist"
+            }
+         ], 
+         "executor": {
+            "actors": [
+               "remote-target-check", 
+               "check-target-output"
+            ], 
+            "type": "group"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeBool", 
+               "name": "force_create"
+            }, 
+            {
+               "type": "ContainersList", 
+               "name": "containerslist"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "container_name"
+            }
+         ], 
+         "description": "Check if the target container is not already running\n\nInputs:\n  force_create   - option to create container when the container exists\n                   with given name - remove the old one and create the new one\n  containerslist - list of the containers on target system\n  container_name - name of the container\nOutputs:\n  None\n", 
+         "name": "verify-target-container", 
+         "executor": {
+            "type": "python", 
+            "script-file": "verify-target-container.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "source_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "source_user_name"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_user_name"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "csv_excluded_paths"
+            }
+         ], 
+         "description": "Copy the files from a source to a target host by using Rsync\n\nInputs:\n  source_host         - source system hostname\n  source_user_name    - source system username\n  target_host         - target system hostname\n  container_directory - name of the container directory\n  csv_excluded_paths  - excluded file paths from copying\nOutputs:\n  None\n", 
+         "name": "rsync", 
+         "executor": {
+            "type": "bash", 
+            "arguments": [
+               "@source_host.value@", 
+               "@source_user_name.value@", 
+               "@target_host.value@", 
+               "@target_user_name.value@", 
+               "@container_directory.value@", 
+               "@csv_excluded_paths.value@"
+            ], 
+            "script-file": "rsync.sh"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "source_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "source_user_name"
+            }
+         ], 
+         "name": "inspect_machine_ansible_group", 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "outputs": [
+            {
+               "type": "OSVersion", 
+               "name": "osversion"
+            }, 
+            {
+               "type": "HostnameInfo", 
+               "name": "hostnameinfo"
+            }, 
+            {
+               "type": "IPList", 
+               "name": "ip_list"
+            }
+         ], 
+         "executor": {
+            "actors": [
+               "source_ansible_setup", 
+               "source_ansible_setup_converter"
+            ], 
+            "type": "group"
+         }, 
+         "description": "Gather source system information like OS version, hostname and IP addresses by using Ansible\n\nInputs:\n  source_host      - hostname of a source system\n  source_user_name - username for a source system\nOutputs:\n  osversion        - information about Operating System\n  hostnameinfo     - hostname\n  ip_list          - list of IP addresses\n"
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "AnsibleSetupModuleFacts", 
+               "name": "ansible_setup"
+            }
+         ], 
+         "description": "Run Ansible to gather system information\n\nInputs:\n  None\nOutputs:\n  ansible_setup - gathered facts about the system\n", 
+         "name": "ansible_setup", 
+         "executor": {
+            "output": "ansible_setup", 
+            "host": "localhost", 
+            "type": "ansible-module", 
+            "user": "root", 
+            "module": {
+               "arguments": [
+                  "gather_subset=!hardware,!virtual,!ohai,!facter"
+               ], 
+               "name": "setup"
+            }
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }, 
+            {
+               "type": "ContainerName", 
+               "name": "container_name"
+            }, 
+            {
+               "type": "OSVersion", 
+               "name": "osversion"
+            }, 
+            {
+               "type": "ExposedPorts", 
+               "name": "exposed_ports"
+            }, 
+            {
+               "type": "BaseTypeBool", 
+               "name": "force_create"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_user_name"
+            }
+         ], 
+         "name": "create_container", 
+         "description": "Create a new container (but has not started yet) based on an image\n\nInputs:\n  container_directory - directory where a new container is going to be created\n  container_name      - name of a new container\n  osversion           - information about Operating System\n  exposed_ports       - publish a container port(s) to host port(s)\n  force_create        - option to create container when the container exists\n                        with given name - remove the old one and create the new one\n  target_host         - hostname of the target system\n  target_user_name    - username on the target system\nOutputs:\n  container_id        - ID of the new container\n  error               - any error returned by 'docker create'\n", 
+         "outputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_id"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "error"
+            }
+         ], 
+         "executor": {
+            "host": "@target_host.value@", 
+            "script-file": "create_container.py", 
+            "type": "ansible-script-module", 
+            "user": "@target_user_name.value@", 
+            "arguments": [
+               "@container_directory@", 
+               "@container_name@", 
+               "@osversion@", 
+               "@exposed_ports@", 
+               "@force_create@"
+            ]
+         }
+      }, 
+      {
+         "outputs": [
+            {
+               "type": "Message", 
+               "name": "message"
+            }, 
+            {
+               "type": "OSVersion", 
+               "name": "osversion"
+            }
+         ], 
+         "description": "Example of the group actor that calls 2 actors\n\nInputs:\n  None\nOutputs:\n  message   - a message that returned by simple-actor\n  osversion - OS version information\n", 
+         "name": "group-actor", 
+         "executor": {
+            "actors": [
+               "simple-actor", 
+               "osversion"
+            ], 
+            "type": "group"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }, 
+            {
+               "type": "TypeStringList", 
+               "name": "upstart_service_blacklist"
+            }
+         ], 
+         "description": "Blacklist upstart services in container directory\n\nInputs:\n  container_directory       - name of the containter directory\n  upstart_service_blacklist - services to blacklist\nOutputs:\n  None\n", 
+         "name": "post_configure_upstart", 
+         "executor": {
+            "type": "python", 
+            "script-file": "post_configure_upstart.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "source_host"
+            }
+         ], 
+         "extends": {
+            "inputs": [
+               {
+                  "source": "@source_host@", 
+                  "name": "host"
+               }, 
+               {
+                  "name": "scan_options", 
+                  "value": {
+                     "shallow_scan": true
+                  }
+               }
+            ], 
+            "name": "portscan", 
+            "outputs": [
+               {
+                  "source": "@port_scan_result@", 
+                  "name": "source_system_ports"
+               }
+            ]
+         }, 
+         "description": "Scan ports on source system\n\nInputs:\n  source_host         - source system hostname\nOutputs:\n  source_system_ports - found ports on source system\n", 
+         "name": "source_portscan", 
+         "outputs": [
+            {
+               "type": "TypePortScan", 
+               "name": "source_system_ports"
+            }
+         ]
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "source_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "ExposedPorts", 
+               "name": "tcp_ports_user_mapping"
+            }, 
+            {
+               "type": "TypePortScan", 
+               "name": "excluded_tcp_ports"
+            }, 
+            {
+               "type": "BaseTypeBool", 
+               "name": "use_default_port_map"
+            }
+         ], 
+         "description": "Group actor that scan ports on source and target system, create an port mapping and print out\nthe result of port mapping\n\nInputs:\n  source_host            - source system hostname\n  target_host            - target system hostname\n  tcp_ports_user_mapping - user ports mapping\n  excluded_tcp_ports     - excluded ports mapping\nOutputs:\n  Print the port mapping to $LEAPP_ACTOR_OUTPUT\n", 
+         "name": "port-mapping", 
+         "executor": {
+            "actors": [
+               "source_portscan", 
+               "target_portscan", 
+               "portmap", 
+               "port-mapping-output"
+            ], 
+            "type": "group"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "ContainerName", 
+               "name": "container_name"
+            }
+         ], 
+         "name": "set_container_directory", 
+         "description": "Set directory path for a container\n\nInputs:\n  container_name      - name of a container\nOutputs:\n  container_directory - container directory full path\n", 
+         "outputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "set_container_directory.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_user_name"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "container_name"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "container_directory"
+            }
+         ], 
+         "description": "Delete a container on the target system\n\nInputs:\n  target_host      - target system hostname\n  target_user_name - username on target system\n  container_name   - container name to delete\nOutputs:\n  None (Deleted container)\n", 
+         "name": "remote-destroy-container", 
+         "executor": {
+            "host": "@target_host.value@", 
+            "script-file": "./scripts/delete-containers.py", 
+            "type": "ansible-script-module", 
+            "user": "@target_user_name.value@", 
+            "arguments": [
+               "@container_directory.value@", 
+               "@container_name.value@"
+            ]
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "RSyncInfo", 
+               "name": "rsyncinfo"
+            }, 
+            {
+               "type": "DockerInfo", 
+               "name": "dockerinfo"
+            }, 
+            {
+               "type": "ContainersList", 
+               "name": "containerslist"
+            }
+         ], 
+         "name": "check_target", 
+         "tags": [
+            "check_target", 
+            "depsolver"
+         ], 
+         "outputs": [
+            {
+               "type": "TargetInfo", 
+               "name": "targetinfo"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "check_target.py"
+         }, 
+         "description": "Check the target system if it has sufficient tools and its statuses\n\nInputs:\n  rsyncinfo      - status about rsync\n  dockerinfo     - status about docker\n  containerslist - list of containers\nOutputs:\n  targetinfo     - result of the statuses of the tools on a target system\n"
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "OptionalContainerName", 
+               "name": "user_container_name"
+            }, 
+            {
+               "type": "HostnameInfo", 
+               "name": "hostnameinfo"
+            }
+         ], 
+         "name": "create_container_name", 
+         "description": "Create a container name based on user input or generate the name with hostname\n\nInputs:\n  user_container_name - (optional) user defined name\n  hostnameinfo        - the hostname\nOutputs:\n  container_name      - user defined name (if user_container_name is provided) or 'container_<hostname>'\n", 
+         "outputs": [
+            {
+               "type": "BaseTypeString", 
+               "name": "container_name"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "create_container_name.py"
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "OSVersion", 
+               "name": "osversion"
+            }, 
+            {
+               "type": "HostnameInfo", 
+               "name": "hostnameinfo"
+            }, 
+            {
+               "type": "IPList", 
+               "name": "ip_list"
+            }, 
+            {
+               "type": "RPMPackages", 
+               "name": "rpm_packages"
+            }
+         ], 
+         "name": "inspect_machine_ansible", 
+         "tags": [
+            "inspect_machine"
+         ], 
+         "outputs": [
+            {
+               "type": "MachineInfo", 
+               "name": "machineinfo"
+            }
+         ], 
+         "executor": {
+            "type": "python", 
+            "script-file": "inspect_machine_ansible.py"
+         }, 
+         "description": "Process information about a system (like OS version, hostname, IP list and RPM packages)\nto one JSON file\n\nInputs:\n  osversion    - version of Operation System\n  hostnameinfo - hostname of a system\n  ip_list      - IP list\n  rpm_packages - RPM packages on a system\nOutputs:\n  machineinfo  - all inputs together\n"
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "ContainerName", 
+               "name": "container_name"
+            }, 
+            {
+               "type": "BaseTypeBool", 
+               "name": "start_container"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_host"
+            }, 
+            {
+               "type": "BaseTypeString", 
+               "name": "target_user_name"
+            }
+         ], 
+         "description": "Start container with given name\n\nInputs:\n  container_name - name of the container (must be existing one?)\n  start_container - option to explicit start the container\nOutputs:\n  None (starting the container)\n", 
+         "name": "start_container", 
+         "executor": {
+            "host": "@target_host.value@", 
+            "script-file": "start.sh", 
+            "type": "ansible-script-module", 
+            "user": "@target_user_name.value@", 
+            "arguments": [
+               "@container_name.value@", 
+               "@start_container.value@"
+            ]
+         }
+      }, 
+      {
+         "inputs": [
+            {
+               "type": "BaseTypeBool", 
+               "name": "check_target_service_status"
+            }, 
+            {
+               "type": "ContainersList", 
+               "name": "containerslist"
+            }, 
+            {
+               "type": "RSyncInfo", 
+               "name": "rsyncinfo"
+            }, 
+            {
+               "type": "DockerInfo", 
+               "name": "dockerinfo"
+            }
+         ], 
+         "description": "Send information about the services (Docker, Rsync) to a socket\n\nInputs:\n  check_tartget_service_status - status of services\n  containerslist               - list of containers\n  rsyncinfo                    - Rsync information (path to bin, version)\n  dockerinfo                   - docker information\nOutputs:\n  None (sending the result to a socket)\n", 
+         "name": "check-target-output", 
+         "executor": {
+            "type": "python", 
+            "script-file": "check-target-output.py"
+         }
+      }
+   ], 
+   "schemas": [
+      {
+         "name": "TargetPortListField", 
+         "schema": {
+            "minItems": 1, 
+            "items": {
+               "exclusiveMinimum": true, 
+               "minimum": 1, 
+               "type": "integer", 
+               "maximum": 65535
+            }, 
+            "additionalItems": false, 
+            "type": "array", 
+            "uniqueItems": true
+         }
+      }, 
+      {
+         "name": "IntField", 
+         "schema": {
+            "type": "integer"
+         }
+      }, 
+      {
+         "name": "TypePortMap", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "udp": {
+                  "additionalProperties": false, 
+                  "patternProperties": {
+                     "^[1-9][0-9]{0,3}$|^[1-5][0-9]{4}$|^6[0-4][0-9]{3}$|^65[0-4][0-9]{2}$|^655[0-2][0-9]$|^6553[0-5]$": {
+                        "minItems": 1, 
+                        "items": {
+                           "exclusiveMinimum": true, 
+                           "minimum": 1, 
+                           "type": "integer", 
+                           "maximum": 65535
+                        }, 
+                        "additionalItems": false, 
+                        "type": "array", 
+                        "uniqueItems": true
+                     }
+                  }, 
+                  "type": "object"
+               }, 
+               "tcp": {
+                  "additionalProperties": false, 
+                  "patternProperties": {
+                     "^[1-9][0-9]{0,3}$|^[1-5][0-9]{4}$|^6[0-4][0-9]{3}$|^65[0-4][0-9]{2}$|^655[0-2][0-9]$|^6553[0-5]$": {
+                        "minItems": 1, 
+                        "items": {
+                           "exclusiveMinimum": true, 
+                           "minimum": 1, 
+                           "type": "integer", 
+                           "maximum": 65535
+                        }, 
+                        "additionalItems": false, 
+                        "type": "array", 
+                        "uniqueItems": true
+                     }
+                  }, 
+                  "type": "object"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "TypeStringList", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "value": {
+                  "uniqueItems": true, 
+                  "items": {
+                     "type": "string"
+                  }, 
+                  "additionalItems": false, 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "BaseTypeBool", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "value": {
+                  "type": "boolean"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ContainersList", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "retcode": {
+                  "type": "integer"
+               }, 
+               "containers": {
+                  "items": {
+                     "type": "string"
+                  }, 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "HostnameInfo", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "hostname": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "TypePortScanOptions", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "shallow_scan": {
+                  "type": "boolean"
+               }, 
+               "port_range": {
+                  "type": "string"
+               }, 
+               "force_nmap": {
+                  "type": "boolean"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ActorDefinition", 
+         "schema": {
+            "additionalProperties": false, 
+            "definitions": {
+               "__builtin__.ChannelSpec": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name", 
+                     "type"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "type": {
+                        "type": "string"
+                     }, 
+                     "name": {
+                        "type": "string"
+                     }
+                  }
+               }, 
+               "__builtin__.ExtendsChannelInputRef": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name", 
+                     "source"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "source": {
+                        "type": "string"
+                     }, 
+                     "name": {
+                        "type": "string"
+                     }
+                  }
+               }, 
+               "__builtin__.ExtendsDefinition": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "inputs": {
+                        "items": {
+                           "oneOf": [
+                              {
+                                 "$ref": "#/definitions/__builtin__.ExtendsChannelValue"
+                              }, 
+                              {
+                                 "$ref": "#/definitions/__builtin__.ExtendsChannelInputRef"
+                              }
+                           ]
+                        }, 
+                        "type": "array"
+                     }, 
+                     "name": {
+                        "type": "string"
+                     }, 
+                     "outputs": {
+                        "items": {
+                           "oneOf": [
+                              {
+                                 "$ref": "#/definitions/__builtin__.ExtendsChannelValue"
+                              }, 
+                              {
+                                 "$ref": "#/definitions/__builtin__.ExtendsChannelOutputRef"
+                              }
+                           ]
+                        }, 
+                        "type": "array"
+                     }
+                  }
+               }, 
+               "__builtin__.ExtendsChannelOutputRef": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name", 
+                     "target"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "name": {
+                        "type": "string"
+                     }, 
+                     "target": {
+                        "type": "string"
+                     }
+                  }
+               }, 
+               "__builtin__.ExtendsChannelValue": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name", 
+                     "value"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "name": {
+                        "type": "string"
+                     }, 
+                     "value": {
+                        "type": "string"
+                     }
+                  }
+               }
+            }, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "inputs": {
+                  "items": {
+                     "$ref": "#/definitions/__builtin__.ChannelSpec"
+                  }, 
+                  "type": "array"
+               }, 
+               "extends": {
+                  "$ref": "#/definitions/__builtin__.ExtendsDefinition"
+               }, 
+               "description": {
+                  "type": "string"
+               }, 
+               "output": {
+                  "oneOf": [
+                     {
+                        "$ref": "#/definitions/__builtin__.ChannelSpec"
+                     }, 
+                     {
+                        "items": {
+                           "$ref": "#/definitions/__builtin__.ChannelSpec"
+                        }, 
+                        "type": "array"
+                     }
+                  ]
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ExtendsDefinition", 
+         "schema": {
+            "additionalProperties": false, 
+            "definitions": {
+               "__builtin__.ExtendsChannelInputRef": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name", 
+                     "source"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "source": {
+                        "type": "string"
+                     }, 
+                     "name": {
+                        "type": "string"
+                     }
+                  }
+               }, 
+               "__builtin__.ExtendsChannelOutputRef": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name", 
+                     "target"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "name": {
+                        "type": "string"
+                     }, 
+                     "target": {
+                        "type": "string"
+                     }
+                  }
+               }, 
+               "__builtin__.ExtendsChannelValue": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name", 
+                     "value"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "name": {
+                        "type": "string"
+                     }, 
+                     "value": {
+                        "type": "string"
+                     }
+                  }
+               }
+            }, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "name"
+            ], 
+            "type": "object", 
+            "properties": {
+               "inputs": {
+                  "items": {
+                     "oneOf": [
+                        {
+                           "$ref": "#/definitions/__builtin__.ExtendsChannelValue"
+                        }, 
+                        {
+                           "$ref": "#/definitions/__builtin__.ExtendsChannelInputRef"
+                        }
+                     ]
+                  }, 
+                  "type": "array"
+               }, 
+               "name": {
+                  "type": "string"
+               }, 
+               "outputs": {
+                  "items": {
+                     "oneOf": [
+                        {
+                           "$ref": "#/definitions/__builtin__.ExtendsChannelValue"
+                        }, 
+                        {
+                           "$ref": "#/definitions/__builtin__.ExtendsChannelOutputRef"
+                        }
+                     ]
+                  }, 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ExtendsChannelOutputRef", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "name", 
+               "target"
+            ], 
+            "type": "object", 
+            "properties": {
+               "name": {
+                  "type": "string"
+               }, 
+               "target": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ChannelSpec", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "name", 
+               "type"
+            ], 
+            "type": "object", 
+            "properties": {
+               "type": {
+                  "type": "string"
+               }, 
+               "name": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ExtendsChannelInputRef", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "name", 
+               "source"
+            ], 
+            "type": "object", 
+            "properties": {
+               "source": {
+                  "type": "string"
+               }, 
+               "name": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ExtendsChannelValue", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "name", 
+               "value"
+            ], 
+            "type": "object", 
+            "properties": {
+               "name": {
+                  "type": "string"
+               }, 
+               "value": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "AnsibleSetupModuleFacts", 
+         "schema": {
+            "additionalProperties": true, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "ansible_facts": {
+                  "type": "object"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ExposedPorts", 
+         "schema": {
+            "additionalProperties": false, 
+            "definitions": {
+               "__builtin__.PortMapping": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "protocol", 
+                     "port"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "protocol": {
+                        "enum": [
+                           "udp", 
+                           "tcp"
+                        ], 
+                        "type": "string"
+                     }, 
+                     "port": {
+                        "minimum": 1, 
+                        "type": "integer", 
+                        "maximum": 65535
+                     }, 
+                     "exposed_port": {
+                        "minimum": 1, 
+                        "type": "integer", 
+                        "maximum": 65535
+                     }
+                  }
+               }
+            }, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "ports"
+            ], 
+            "type": "object", 
+            "properties": {
+               "ports": {
+                  "items": {
+                     "$ref": "#/definitions/__builtin__.PortMapping"
+                  }, 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "PortMapping", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "protocol", 
+               "port"
+            ], 
+            "type": "object", 
+            "properties": {
+               "protocol": {
+                  "enum": [
+                     "udp", 
+                     "tcp"
+                  ], 
+                  "type": "string"
+               }, 
+               "port": {
+                  "minimum": 1, 
+                  "type": "integer", 
+                  "maximum": 65535
+               }, 
+               "exposed_port": {
+                  "minimum": 1, 
+                  "type": "integer", 
+                  "maximum": 65535
+               }
+            }
+         }
+      }, 
+      {
+         "name": "BaseTypeNumber", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "value": {
+                  "type": "number"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "ContainerName", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "value"
+            ], 
+            "type": "object", 
+            "properties": {
+               "value": {
+                  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]+$", 
+                  "type": "string", 
+                  "description": "Valid container name. Same pattern used by Docker."
+               }
+            }
+         }
+      }, 
+      {
+         "name": "OptionalContainerName", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "value": {
+                  "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_.-]+|)$", 
+                  "type": "string", 
+                  "description": "Valid container name. Same pattern used by Docker."
+               }
+            }
+         }
+      }, 
+      {
+         "name": "BaseTypeString", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "value": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "RSyncInfo", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "path": {
+                  "items": [
+                     {
+                        "type": "integer"
+                     }, 
+                     {
+                        "type": "string"
+                     }
+                  ], 
+                  "type": "array"
+               }, 
+               "version": {
+                  "items": [
+                     {
+                        "type": "integer"
+                     }, 
+                     {
+                        "type": "string"
+                     }
+                  ], 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "RPMPackage", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "version": {
+                  "type": "string"
+               }, 
+               "name": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "RPMPackages", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "packages": {
+                  "items": {
+                     "additionalProperties": false, 
+                     "type": "object", 
+                     "properties": {
+                        "version": {
+                           "type": "string"
+                        }, 
+                        "name": {
+                           "type": "string"
+                        }
+                     }
+                  }, 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "IPList", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "ips": {
+                  "items": {
+                     "type": "string", 
+                     "format": "ipv4"
+                  }, 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "Message", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "value": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "OSVersion", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "version": {
+                  "type": "string"
+               }, 
+               "name": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "DockerInfo", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "info": {
+                  "items": [
+                     {
+                        "type": "integer"
+                     }, 
+                     {
+                        "type": "string"
+                     }
+                  ], 
+                  "type": "array"
+               }, 
+               "path": {
+                  "items": [
+                     {
+                        "type": "integer"
+                     }, 
+                     {
+                        "type": "string"
+                     }
+                  ], 
+                  "type": "array"
+               }, 
+               "systemd_state": {
+                  "items": [
+                     {
+                        "type": "integer"
+                     }, 
+                     {
+                        "type": "string"
+                     }
+                  ], 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "PortData", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "required": [
+               "name"
+            ], 
+            "type": "object", 
+            "properties": {
+               "product": {
+                  "type": "string"
+               }, 
+               "name": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "TypePortScan", 
+         "schema": {
+            "additionalProperties": false, 
+            "definitions": {
+               "__builtin__.PortData": {
+                  "additionalProperties": false, 
+                  "required": [
+                     "name"
+                  ], 
+                  "type": "object", 
+                  "properties": {
+                     "product": {
+                        "type": "string"
+                     }, 
+                     "name": {
+                        "type": "string"
+                     }
+                  }
+               }
+            }, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "udp": {
+                  "additionalProperties": false, 
+                  "patternProperties": {
+                     "^[1-9][0-9]{0,3}$|^[1-5][0-9]{4}$|^6[0-4][0-9]{3}$|^65[0-4][0-9]{2}$|^655[0-2][0-9]$|^6553[0-5]$": {
+                        "$ref": "#/definitions/__builtin__.PortData"
+                     }
+                  }, 
+                  "type": "object"
+               }, 
+               "tcp": {
+                  "additionalProperties": false, 
+                  "patternProperties": {
+                     "^[1-9][0-9]{0,3}$|^[1-5][0-9]{4}$|^6[0-4][0-9]{3}$|^65[0-4][0-9]{2}$|^655[0-2][0-9]$|^6553[0-5]$": {
+                        "$ref": "#/definitions/__builtin__.PortData"
+                     }
+                  }, 
+                  "type": "object"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "HostnameInfo", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "hostname": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "RPMPackages", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "packages": {
+                  "items": {
+                     "additionalProperties": false, 
+                     "type": "object", 
+                     "properties": {
+                        "version": {
+                           "type": "string"
+                        }, 
+                        "name": {
+                           "type": "string"
+                        }
+                     }
+                  }, 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "MachineInfo", 
+         "schema": {
+            "additionalProperties": false, 
+            "definitions": {
+               "osversion.OSVersion": {
+                  "additionalProperties": false, 
+                  "type": "object", 
+                  "properties": {
+                     "version": {
+                        "type": "string"
+                     }, 
+                     "name": {
+                        "type": "string"
+                     }
+                  }
+               }, 
+               "iplist.IPList": {
+                  "additionalProperties": false, 
+                  "type": "object", 
+                  "properties": {
+                     "ips": {
+                        "items": {
+                           "type": "string", 
+                           "format": "ipv4"
+                        }, 
+                        "type": "array"
+                     }
+                  }
+               }, 
+               "rpmlist.RPMPackages": {
+                  "additionalProperties": false, 
+                  "type": "object", 
+                  "properties": {
+                     "packages": {
+                        "items": {
+                           "additionalProperties": false, 
+                           "type": "object", 
+                           "properties": {
+                              "version": {
+                                 "type": "string"
+                              }, 
+                              "name": {
+                                 "type": "string"
+                              }
+                           }
+                        }, 
+                        "type": "array"
+                     }
+                  }
+               }, 
+               "hostnameinfo.HostnameInfo": {
+                  "additionalProperties": false, 
+                  "type": "object", 
+                  "properties": {
+                     "hostname": {
+                        "type": "string"
+                     }
+                  }
+               }
+            }, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "iplist": {
+                  "$ref": "#/definitions/iplist.IPList"
+               }, 
+               "osversion": {
+                  "$ref": "#/definitions/osversion.OSVersion"
+               }, 
+               "rpm_packages": {
+                  "$ref": "#/definitions/rpmlist.RPMPackages"
+               }, 
+               "hostnameinfo": {
+                  "$ref": "#/definitions/hostnameinfo.HostnameInfo"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "IPList", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "ips": {
+                  "items": {
+                     "type": "string", 
+                     "format": "ipv4"
+                  }, 
+                  "type": "array"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "OSVersion", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "version": {
+                  "type": "string"
+               }, 
+               "name": {
+                  "type": "string"
+               }
+            }
+         }
+      }, 
+      {
+         "name": "TargetInfo", 
+         "schema": {
+            "additionalProperties": false, 
+            "$schema": "http://json-schema.org/draft-04/schema#", 
+            "type": "object", 
+            "properties": {
+               "docker": {
+                  "items": [
+                     {
+                        "type": "string"
+                     }, 
+                     {
+                        "oneOf": [
+                           {
+                              "type": "string"
+                           }, 
+                           {
+                              "type": "null"
+                           }
+                        ]
+                     }
+                  ], 
+                  "type": "array"
+               }, 
+               "rsync": {
+                  "items": [
+                     {
+                        "type": "string"
+                     }, 
+                     {
+                        "oneOf": [
+                           {
+                              "type": "string"
+                           }, 
+                           {
+                              "type": "null"
+                           }
+                        ]
+                     }
+                  ], 
+                  "type": "array"
+               }, 
+               "containers": {
+                  "items": [
+                     {
+                        "type": "string"
+                     }, 
+                     {
+                        "items": {
+                           "type": "string"
+                        }, 
+                        "type": "array"
+                     }
+                  ], 
+                  "type": "array"
+               }
+            }
+         }
+      }
+   ]
+}

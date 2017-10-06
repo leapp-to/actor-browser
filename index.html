@@ -1,0 +1,399 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Snactor UI</title>
+  <link rel="stylesheet" href="css/patternfly.min.css" />
+  <link rel="stylesheet" href="css/patternfly-additions.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+  <script src="js/patternfly.min.js"></script>
+  <script src="js/patternfly-functions-navigation.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-default navbar-pf" role="navigation">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#" style="margin: 0">
+                        <img src="img/brand.svg" alt="Snactor UI" />
+                      </a>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-utility">
+          <li class="dropdown">
+            <a class="nav-item-iconic" id="horizontalDropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span title="Help" class="fa pficon-help"></span>
+                            <span class="caret"></span>
+                          </a>
+            <ul class="dropdown-menu" aria-labelledby="horizontalDropdownMenu1">
+              <li><a href="#">Help</a></li>
+              <li><a href="#">About</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-primary">
+          <li class="active">
+            <a href="#actors">Actors</a>
+          </li>
+          <li>
+            <a href="#">Schemas</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container-fluid" id="toolbox">
+    <div class="row toolbar-pf">
+      <div class="col-sm-12">
+        <form class="toolbar-pf-actions">
+          <div class="form-group toolbar-pf-filter">
+            <label class="sr-only" for="filter">Name</label>
+            <div class="input-group">
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Name <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                  <li class="selected"><a href="#">Name</a></li>
+                  <li><a href="#">Inputs</a></li>
+                  <li><a href="#">Outputs</a></li>
+                  <li><a href="#">Description</a></li>
+                </ul>
+              </div>
+              <!-- /btn-group -->
+              <input type="text" class="form-control" id="filter" placeholder="Filter By Name...">
+            </div>
+            <!-- /input-group -->
+          </div>
+          <div class="toolbar-pf-action-right">
+            <div class="form-group toolbar-pf-find">
+              <button class="btn btn-link btn-find" type="button">
+                                  <span class="fa fa-search"></span>
+                                </button>
+              <div class="find-pf-dropdown-container">
+                <input type="text" class="form-control" id="find" placeholder="Find By Keyword...">
+                <div class="find-pf-buttons">
+                  <span class="find-pf-nums">1 of 3</span>
+                  <button class="btn btn-link" type="button">
+                                      <span class="fa fa-angle-up"></span>
+                                    </button>
+                  <button class="btn btn-link" type="button">
+                                      <span class="fa fa-angle-down"></span>
+                                    </button>
+                  <button class="btn btn-link btn-find-close" type="button">
+                                      <span class="pficon pficon-close"></span>
+                                    </button>
+                </div>
+              </div>
+            </div>
+            <div class="form-group toolbar-pf-view-selector">
+              <button class="btn btn-link "><i class="fa fa-th"></i></button>
+              <button class="btn btn-link "><i class="fa fa-th-large"></i></button>
+              <button class="btn btn-link "><i class="fa fa-th-list"></i></button>
+            </div>
+          </div>
+        </form>
+        <div class="row toolbar-pf-results">
+          <div class="col-sm-12">
+            <h5><span id="page-title">Actors</span>: <span id="page-extents" class="text-muted">1-10 / 35</span></h5>
+          </div>
+          <!-- /col -->
+        </div>
+        <!-- /row -->
+      </div>
+      <!-- /col -->
+    </div>
+    <!-- /row -->
+  </div>
+  <!-- /container -->
+
+  <div class="container-fluid">
+
+    <div class="list-group list-view-pf" id="main-list">
+    </div>
+
+    <form class="content-view-pf-pagination clearfix" id="pagination1">
+        <div class="form-group">
+          <select class="selectpicker pagination-pf-pagesize" disabled>
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+          <span>per page</span>
+        </div>
+        <div class="form-group" style="align-items:center">
+          <span><span class="pagination-pf-items-current"></span> of <span class="pagination-pf-items-total"></span></span>
+          <ul class="pagination pagination-pf-back">
+            <li class="disabled"><a href="#" id="pagination-first" title="First Page"><span class="i fa fa-angle-double-left"></span></a></li>
+            <li class="disabled"><a href="#" id="pagination-prev" title="Previous Page"><span class="i fa fa-angle-left"></span></a></li>
+          </ul>
+          <label for="pagination1-page" class="sr-only">Current Page</label>
+          <input class="pagination-pf-page" type="text" value="1" id="pagination1-page"/>
+          <span>of <span class="pagination-pf-pages">5</span></span>
+          <ul class="pagination pagination-pf-forward">
+            <li><a href="#" id="pagination-next" title="Next Page"><span class="i fa fa-angle-right"></span></a></li>
+            <li><a href="#" id="pagination-last" title="Last Page"><span class="i fa fa-angle-double-right"></span></a></li>
+          </ul>
+        </div>
+      </form>
+  </div>
+
+  <script src="data.json"></script>
+  <script>
+    if (!String.prototype.format) {
+      String.prototype.format = function() {
+        var args = arguments;
+        return this.replace(/{(\d+)}/g, function(match, number) { 
+          return typeof args[number] != 'undefined'
+          ? args[number]
+          : match;
+        });
+      };
+    }
+
+    let item_data = `
+      <div class="list-group-item list-view-pf-stacked list-view-pf-top-align">
+        <div class="list-view-pf-checkbox">
+          <input type="checkbox">
+        </div>
+        <div class="list-view-pf-main-info" style="cursor:pointer" onclick="document.location.hash='#actor_{0}'">
+          <div class="list-view-pf-body">
+            <div class="list-view-pf-description">
+              <div class="list-group-item-heading">
+                {0}
+              </div>
+              <div class="list-group-item-text">
+                {1}
+              </div>
+            </div>
+            <div class="list-view-pf-additional-info">
+              <div class="list-view-pf-additional-info-item">
+                <span class="fa fa-angle-down"></span>
+                <a href="#"><strong>{2}</strong> inputs</a>
+              </div>
+              <div class="list-view-pf-additional-info-item">
+                <span class="fa fa-angle-up"></span>
+                <a href="#"><strong>{3}</strong> output</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`
+
+    let show_actor = `
+      <div class="list-group-item container-fluid">
+        <div class="row">
+          <div class="col-md-3">
+            INPUTS:
+            <ul>
+               {0}
+            </ul>
+          </div>
+          <div class="col-md-3">
+            OUTPUTS:
+            <ul>
+               {1}
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <dl class="dl-horizontal">
+              <dt>Actor Name</dt>
+              <dd>{2}</dd>
+              <dt>Tags</dt>
+              <dd>{3}</dd>
+            </dl>
+            <p>
+              {4}
+            </p>
+          </div>
+        </div>
+        <div class="list-view-pf-actions">
+          <button class="btn btn-default" onclick="history.go(-1);">Back</button>
+        </div>
+      </div>
+    `
+
+    let sane_split = function(str, sep, num) {
+       const separated = str.split(sep);
+       let base = separated.slice(0, num);
+       base.push(separated.slice(num, separated.length).join(sep));
+       return base;
+    };
+
+    let url_router = function() {
+      const route = sane_split(document.location.hash.substring(1), "_", 1);
+
+      switch (route[0]) {
+        case "actors":
+          const per_page = 10;
+          const num_actors = snactor_data.actors.length;
+          const num_pages = Math.max(1, Math.ceil(num_actors / per_page));
+
+          let index = 0;
+          $("#main-list > .list-group-item, iframe").remove();
+          $("#toolbox, #pagination1").show();
+
+          if (route.length > 1) {
+            index = (parseInt(route[1]) - 1) || 0;
+          }
+
+          const start = (index * per_page) + 1;
+          const end = Math.min((index + 1) * per_page - 1, num_actors - 1);
+
+          $('#page-extents').text('{0}-{1} / {2}'.format(start, end + 1, num_actors))
+          $('#pagination1-page').val((index + 1)+"");
+          $('.pagination-pf-items-current').text('{0}-{1}'.format(start, end + 1));
+          $('.pagination-pf-items-total').text(num_actors+"");
+          $('.pagination-pf-pages').text(num_pages+"");
+
+          if (index < 1) {
+            $('.pagination-pf-back > li').addClass('disabled');
+            $('.pagination-pf-back > li > a').attr('href', document.location.hash);
+          } else {
+            $('.pagination-pf-back > li').removeClass('disabled');
+            $('#pagination-prev').attr('href', "#actors_{0}".format(index));
+          }
+
+          if (index >= (num_pages - 1)) {
+            $('.pagination-pf-forward > li').addClass('disabled');
+            $('.pagination-pf-forward > li > a').attr('href', document.location.hash);
+          } else {
+            $('.pagination-pf-forward > li').removeClass('disabled');
+            $('#pagination-next').attr('href', "#actors_{0}".format(index + 2));
+          }
+
+          $(snactor_data.actors.slice(start - 1, end + 1)).each(
+            function() {
+              let inputs = this.inputs === undefined ? 0 : this.inputs.length;
+              let outputs = this.outputs === undefined ? 0 : this.outputs.length;
+              let description = this.description.split('\n')[0];
+              $('#main-list').append(
+                item_data.format(this.name, description, inputs, outputs)
+              );
+            }
+          );
+
+          break;
+        case "actor":
+          $("#main-list > .list-group-item, iframe").remove();
+          let actor = snactor_data.actors.find((f) => f.name == route[1]);
+          
+          let inputs = "";
+          let outputs = "";
+          for (input of (actor.inputs || [])) {
+            inputs += '<li><a href="#schema_{1}">{0} -&gt; {1}</a></li>'.format(input.name, input.type)
+          }
+          for (output of (actor.outputs || [])) {
+            outputs += '<li><a href="#schema_{1}">{0} -&gt; {1}</a></li>'.format(output.name, output.type)
+          }
+
+          $("#main-list").append(show_actor.format(inputs, outputs, actor.name || "<unnamed>", actor.tags || "no tags", actor.description.split('\n')[0]));
+          $("#toolbox, #pagination1").hide()
+
+          break
+        case "schema":
+          $("#main-list > .list-group-item, iframe").remove();
+          $("#toolbox, #pagination1").hide();
+          let schema = snactor_data.schemas.find((f) => f.name == route[1]);
+          let props = schema.schema.properties;
+
+          $("#main-list").append(
+            `<div class="row"><div class="col-sm-4"><div class="h3" align="center">Schema Layout</div><iframe id='` + route[1] +`' style='padding: 0; border: 1px dashed; width: 600px; height: 600px; background: transparent' class='col-sm-4' src='http://lbovet.github.io/docson/index.html#data:text/json;base64,` + btoa(JSON.stringify(schema.schema)) + `'></iframe></div><div class="col-sm-6"><div class="h3">References</div></div></div>`
+          );
+          /*
+          for (prop of Object.keys(props)) {
+            console.log(prop, props[prop].type)
+          }
+          console.log(schema.name, schema.schema);
+          //console.log(route[1]);
+          */
+      }
+    }
+
+    $(document).ready(function () {
+      window.addEventListener('hashchange', url_router);
+      url_router();
+
+      $('.selectpicker').selectpicker({
+        size: 5
+      });
+
+      // Row Checkbox Selection
+      $("input[type='checkbox']").change(function (e) {
+        if ($(this).is(":checked")) {
+          $(this).closest('.list-group-item').addClass("active");
+        } else {
+          $(this).closest('.list-group-item').removeClass("active");
+        }
+      });
+      // toggle dropdown menu
+      $('.list-view-pf-actions').on('show.bs.dropdown', function () {
+        var $this = $(this);
+        var $dropdown = $this.find('.dropdown');
+        var space = $(window).height() - $dropdown[0].getBoundingClientRect().top - $this.find('.dropdown-menu')
+          .outerHeight(true);
+        $dropdown.toggleClass('dropup', space < 10);
+      });
+      // allow users to select multiple list items with shift key
+      $('.list-group').on('click', '.list-view-pf-checkbox>input', function (event) {
+        var $list = $('.list-group');
+        var prevIndex = $list.data('preIndex');
+        var $listItems = $list.children('.list-group-item');
+        var $currentItem = $(this).closest('.list-group-item');
+        if (event.shiftKey && prevIndex > -1 && this.checked) {
+          var currentIndex = $listItems.index($currentItem);
+          var $selectScope = currentIndex - prevIndex > 0 ?
+            $currentItem.prevAll().not($listItems.eq(prevIndex).prevAll().addBack()) :
+            $listItems.eq(prevIndex).prevAll().not($currentItem.prevAll().addBack());
+          $selectScope.addClass('active').find('.list-view-pf-checkbox').children('input').prop('checked', true);
+        }
+        $list.data('preIndex', this.checked ? $listItems.index($currentItem) : -1);
+      });
+      $(".list-view-pf-expand").on("click", function () {
+        var $this = $(this);
+        var $heading = $(this).parents(".list-group-item");
+        //var $row = $heading.parent();
+        var $subPanels = $heading.find(".list-group-item-container");
+        var index = $heading.find(".list-view-pf-expand").index(this);
+
+        //Remove all active status
+        $heading.find(".list-view-pf-expand.active").find(".fa-angle-right").removeClass("fa-angle-down")
+          .end().removeClass("active")
+          .end().removeClass("list-view-pf-expand-active");
+        // Add active to the clicked item
+        $(this).addClass("active")
+          .parents(".list-group-item").addClass("list-view-pf-expand-active")
+          .end().find(".fa-angle-right").addClass("fa-angle-down");
+        // check if it needs to hide
+        if ($subPanels.eq(index).hasClass("hidden")) {
+          $heading.find(".list-group-item-container:visible").addClass("hidden");
+          $subPanels.eq(index).removeClass("hidden");
+        } else {
+          $subPanels.eq(index).addClass("hidden");
+          $heading.find(".list-view-pf-expand.active").find(".fa-angle-right").removeClass("fa-angle-down")
+            .end().removeClass("active")
+            .end().removeClass("list-view-pf-expand-active");
+        }
+      });
+
+      // click close button to close the panel
+      $(".list-group-item-container .close").on("click", function () {
+        var $this = $(this);
+        var $panel = $this.parent();
+
+        // close the container and remove the active status
+        $panel.addClass("hidden")
+          .parent().removeClass("list-view-pf-expand-active")
+          .find(".list-view-pf-expand.active").removeClass("active")
+          .find(".fa-angle-right").removeClass("fa-angle-down")
+      });
+    });
+  </script>
+</body>
+
+</html>
