@@ -303,7 +303,7 @@
           let props = schema.schema.properties;
 
           $("#main-list").append(
-            `<div class="row"><div class="col-sm-4"><div class="h3" align="center">Schema Layout</div><iframe id='` + route[1] +`' style='padding: 0; border: 1px dashed; width: 600px; height: 600px; background: transparent' class='col-sm-4' src='http://lbovet.github.io/docson/index.html#data:text/json;base64,` + btoa(JSON.stringify(schema.schema)) + `'></iframe></div><div class="col-sm-6"><div class="h3">References</div></div></div>`
+            `<div class="row"><div class="col-sm-4"><div class="h3" align="center">Schema Layout</div><iframe id='` + route[1] +`' style='padding: 0; border: 1px dashed; width: 600px; height: 600px; background: transparent' class='col-sm-4' src='https://lbovet.github.io/docson/index.html#data:text/json;base64,` + btoa(JSON.stringify(schema.schema)) + `'></iframe></div><div class="col-sm-6"><div class="h3">References</div></div></div>`
           );
           /*
           for (prop of Object.keys(props)) {
